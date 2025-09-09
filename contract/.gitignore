@@ -19,4 +19,9 @@
 # Hardhat coverage reports
 /coverage
 
-.vscode
+.vscode/
+node_modules/
+.git/
+artifacts/
+cache/
+types/
