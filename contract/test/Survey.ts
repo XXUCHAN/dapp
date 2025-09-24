@@ -14,7 +14,7 @@ it("Survey init", async()=>{
       options:["옵션","11"],
     }
   ]
-  const s = await ethers.deployContract("Survey",[
+  const s = await ethers.deployContract("Survey",[ //0번 계좌가 default로 배포
     title,
     description,
     questions
@@ -25,4 +25,15 @@ it("Survey init", async()=>{
   expect(_title).eq(title);
   expect(_desc).eq(description);
   expect(_question[0].options).deep.eq(questions[0].options)
+
+  const signers = await ethers.getSigners();
+  const respondent = signers[1];
+  await s.connect(respondent);
+  await s.submitAnswer({
+    respondent:respondent.address,
+    answers:[1],
+  });
+  
+  console.log(await s.getAnswers());
 }); 
+
