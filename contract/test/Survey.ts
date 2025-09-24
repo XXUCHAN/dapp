@@ -35,11 +35,17 @@ it("Survey init", async()=>{
   // });
   
   // console.log(await s.getAnswers());
-  const factory = await ethers.deployContract("SurveyFactory",[]);
+  const factory = await ethers.deployContract("SurveyFactory",[
+    ethers.parseEther("50"),
+    ethers.parseEther("0.1")
+  ]);
   const tx = await factory.createSurvey({
     title,
     description,
+    targetNumber:100,
     questions
+  },{
+    value:ethers.parseEther("100")
   });
   const receipt = await tx.wait();
 
@@ -50,11 +56,20 @@ it("Survey init", async()=>{
       surveyAddress = event.args[0];
     }
   })
-  
+
   // const surveys = await factory.getSurveys();
   const surveyC = await ethers.getContractFactory("Survey");
+  const signers = await ethers.getSigners();
+  const respondent = signers[0];
   const survey = surveyC.attach(surveyAddress!);
-
-  console.log(await survey.getQuestions());
+  await survey.connect(respondent);
+  console.log(ethers.formatEther(await ethers.provider.getBalance(respondent)));
+  const submitTx = await survey.submitAnswer({
+    respondent,
+    answers:[1]
+  });
+  await submitTx.wait();
+  await ethers.provider.getBalance(respondent);
+  console.log(ethers.formatEther(await ethers.provider.getBalance(respondent)));
 }); 
 
