@@ -17,9 +17,6 @@ contract SurveyFactory{
     min_pool_amount = _min_pool_amount;
     min_reward_amount=_min_reward_amount;
   }
-
-  
-
   function createSurvey(SurveySchema calldata _survey) external payable{
     require(msg.value >= min_pool_amount,"insufficient pool amount");
     require(msg.value / _survey.targetNumber >= min_reward_amount,"insufficient reward amount");
@@ -30,5 +27,11 @@ contract SurveyFactory{
   }
   function getSurveys() external view returns (Survey[]memory ){
     return surveys;
+  }
+  function getMinPoolAmount() external view returns(uint256){
+    return min_pool_amount;
+  }
+  function getMinRewardAmount() external view returns(uint256){
+    return min_reward_amount;
   }
 }

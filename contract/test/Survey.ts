@@ -1,75 +1,223 @@
 import {expect} from "chai"
 import {network} from "hardhat"
-interface Question{
-  question:string;
-  options:string[];
-}
-it("Survey init", async()=>{
-  const {ethers} = await network.connect();
-  const title ="설문조사";
-  const description = "@@조사@@";
-  const questions : Question[]= [
-    {
-      question:"questions",
-      options:["옵션","11"],
-    }
-  ]
-  // const s = await ethers.deployContract("Survey",[ //0번 계좌가 default로 배포
-  //   title,
-  //   description,
-  //   questions
-  // ]);
-  // const _title = await s.title();
-  // const _desc = await s.description();
-  // const _question = (await s.getQuestions()) as Question[];
-  // expect(_title).eq(title);
-  // expect(_desc).eq(description);
-  // expect(_question[0].options).deep.eq(questions[0].options)
+import {ethers} from "ethers"
+// interface Question{
+//   question:string;
+//   options:string[];
+// }
+// it("Survey init", async()=>{
+//   const {ethers} = await network.connect();
+//   const title ="설문조사";
+//   const description = "@@조사@@";
+//   const questions : Question[]= [
+//     {
+//       question:"questions",
+//       options:["옵션","11"],
+//     }
+//   ]
+//   // const s = await ethers.deployContract("Survey",[ //0번 계좌가 default로 배포
+//   //   title,
+//   //   description,
+//   //   questions
+//   // ]);
+//   // const _title = await s.title();
+//   // const _desc = await s.description();
+//   // const _question = (await s.getQuestions()) as Question[];
+//   // expect(_title).eq(title);
+//   // expect(_desc).eq(description);
+//   // expect(_question[0].options).deep.eq(questions[0].options)
 
-  // const signers = await ethers.getSigners();
-  // const respondent = signers[1];
-  // await s.connect(respondent);
-  // await s.submitAnswer({
-  //   respondent:respondent.address,
-  //   answers:[1],
-  // });
+//   // const signers = await ethers.getSigners();
+//   // const respondent = signers[1];
+//   // await s.connect(respondent);
+//   // await s.submitAnswer({
+//   //   respondent:respondent.address,
+//   //   answers:[1],
+//   // });
   
-  // console.log(await s.getAnswers());
-  const factory = await ethers.deployContract("SurveyFactory",[
-    ethers.parseEther("50"),
-    ethers.parseEther("0.1")
-  ]);
-  const tx = await factory.createSurvey({
-    title,
-    description,
-    targetNumber:100,
-    questions
-  },{
-    value:ethers.parseEther("100")
-  });
-  const receipt = await tx.wait();
+//   // console.log(await s.getAnswers());
+//   const factory = await ethers.deployContract("SurveyFactory",[
+//     ethers.parseEther("50"),
+//     ethers.parseEther("0.1")
+//   ]);
+//   const tx = await factory.createSurvey({
+//     title,
+//     description,
+//     targetNumber:100,
+//     questions
+//   },{
+//     value:ethers.parseEther("100")
+//   });
+//   const receipt = await tx.wait();
 
-  let surveyAddress;
-  receipt?.logs.forEach(log=>{
+//   let surveyAddress;
+//   receipt?.logs.forEach(log=>{
+//     const event = factory.interface.parseLog(log);
+//     if(event?.name == "SurveyCreated"){
+//       surveyAddress = event.args[0];
+//     }
+//   })
+
+//   // const surveys = await factory.getSurveys();
+//   const surveyC = await ethers.getContractFactory("Survey");
+//   const signers = await ethers.getSigners();
+//   const respondent = signers[0];
+//   const survey = surveyC.attach(surveyAddress!);
+//   await survey.connect(respondent);
+//   // console.log(ethers.formatEther(await ethers.provider.getBalance(respondent)));
+//   const submitTx = await survey.submitAnswer({
+//     respondent,
+//     answers:[1]
+//   });
+//   await submitTx.wait();
+//   await ethers.provider.getBalance(respondent);
+//   // console.log(ethers.formatEther(await ethers.provider.getBalance(respondent)));
+// }); 
+
+//require, event, require에 대한 테스트
+describe("SurveyFactory Contract", () => {
+  let factory,owner,respondent1,respondent2;
+
+
+  beforeEach(async () => {
+    const { ethers } = await network.connect();
+    const signers = await ethers.getSigners();
+    [owner, respondent1, respondent2] = signers;
+
+
+
+    factory = await ethers.deployContract("SurveyFactory", [
+
+      ethers.parseEther("50"), // min_pool_amount
+
+      ethers.parseEther("0.1"), // min_reward_amount
+
+    ]);
+
+  });
+
+
+
+  it("should deploy with correct minimum amounts", async () => {
+    // TODO: check min_pool_amount and min_reward_amount
+    expect(await factory.connect(owner).getMinPoolAmount()).to.equal(ethers.parseEther("50"));
+    expect(await factory.connect(owner).getMinRewardAmount()).to.equal(ethers.parseEther("0.1"));
+  });
+
+
+
+  it("should create a new survey when valid values are provided", async () => {
+
+    // TODO: prepare SurveySchema and call createSurvey with msg.value
+    const title = "설문조사";
+    const description = "테스트 설명";
+    const questions = [
+      { question: "질문1", options: ["1번", "2번"] }
+    ];
+    const targetNumber = 10;
+    const poolAmount = ethers.parseEther("100");
+
+    const beforeSurvey= await factory.getSurveys();
+
+    const tx = await factory.connect(respondent1).createSurvey({
+      title,description,targetNumber,questions
+    },{value:poolAmount});
+    const receipt = await tx.wait(); 
+
+    // TODO: check event SurveyCreated emitted
+    const eventFound = receipt?.logs.some(log => {
     const event = factory.interface.parseLog(log);
-    if(event?.name == "SurveyCreated"){
-      surveyAddress = event.args[0];
-    }
-  })
+      return event?.name === "SurveyCreated";
+    });
+    expect(eventFound).to.be.true;
 
-  // const surveys = await factory.getSurveys();
-  const surveyC = await ethers.getContractFactory("Survey");
-  const signers = await ethers.getSigners();
-  const respondent = signers[0];
-  const survey = surveyC.attach(surveyAddress!);
-  await survey.connect(respondent);
-  console.log(ethers.formatEther(await ethers.provider.getBalance(respondent)));
-  const submitTx = await survey.submitAnswer({
-    respondent,
-    answers:[1]
+    // TODO: check surveys array length increased
+    const afterSurvey = await factory.getSurveys();
+    expect(afterSurvey.length).to.equal(beforeSurvey.length + 1);
   });
-  await submitTx.wait();
-  await ethers.provider.getBalance(respondent);
-  console.log(ethers.formatEther(await ethers.provider.getBalance(respondent)));
-}); 
 
+
+
+  it("should revert if pool amount is too small", async () => {
+
+    // TODO: expect revert when msg.value < min_pool_amount
+    const title = "설문조사";
+    const description = "테스트 설명";
+    const questions = [
+      { question: "질문1", options: ["1번", "2번"] }
+    ];
+    const targetNumber = 10;
+    const poolAmount = ethers.parseEther("49"); // min_pool_amount보다 작은 경우
+
+    await expect(
+      factory.connect(respondent1).createSurvey({ title, description, targetNumber, questions }, { value: poolAmount })
+    ).to.be.revertedWith("insufficient pool amount");
+  });
+
+
+
+  it("should revert if reward amount per respondent is too small", async () => {
+
+    // TODO: expect revert when msg.value / targetNumber < min_reward_amount
+    const title = "설문조사";
+    const description = "테스트 설명";
+    const questions = [
+      { question: "질문1", options: ["1번", "2번"] }
+    ];
+    const targetNumber = 1000000;
+    const poolAmount = ethers.parseEther("51"); 
+
+    await expect(
+      factory.connect(respondent2).createSurvey({ title, description, targetNumber, questions }, { value: poolAmount })
+    ).to.be.revertedWith("insufficient reward amount");
+  });
+
+
+
+  it("should store created surveys and return them from getSurveys", async () => {
+
+    // TODO: create multiple surveys and check getSurveys output
+    // 첫 번째 설문 
+    const firstTx = await factory.connect(respondent1).createSurvey({
+      title: "설문1",
+      description: "설명1",
+      targetNumber: 10,
+      questions: [{ question: "Q1", options: ["A", "B"] }]
+    }, { value: ethers.parseEther("100") });
+
+    const firstReceipt = await firstTx.wait(); 
+    const firstContractAddress = firstReceipt.logs.map(log => {
+      const event = factory?.interface?.parseLog(log);
+        if (event?.name === "SurveyCreated") {
+          return event?.args[0];
+        }
+    }).filter(Boolean).pop();
+
+
+    // 두 번째 설문 
+    const secondTx = await factory.connect(respondent2).createSurvey({
+      title: "설문2",
+      description: "설명2",
+      targetNumber: 20,
+      questions: [{ question: "Q2", options: ["X", "Y"] }]
+    }, { value: ethers.parseEther("100") });
+
+    const secondReceipt = await secondTx.wait(); 
+    const secondContractAddress = secondReceipt.logs.map(log => {
+      const event = factory?.interface?.parseLog(log);
+        if (event?.name === "SurveyCreated") {
+          return event?.args[0];
+        }
+    }).filter(Boolean).pop();
+
+    const surveys = await factory.getSurveys();
+
+    // 배열 길이 확인
+    expect(surveys.length).to.be.gte(2);
+
+    // getSurveys()에서 ContractAddress 확인
+    expect(surveys[0]).to.equal(firstContractAddress);
+    expect(surveys[1]).to.equal(secondContractAddress);
+  });
+
+});
