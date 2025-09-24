@@ -14,26 +14,47 @@ it("Survey init", async()=>{
       options:["옵션","11"],
     }
   ]
-  const s = await ethers.deployContract("Survey",[ //0번 계좌가 default로 배포
+  // const s = await ethers.deployContract("Survey",[ //0번 계좌가 default로 배포
+  //   title,
+  //   description,
+  //   questions
+  // ]);
+  // const _title = await s.title();
+  // const _desc = await s.description();
+  // const _question = (await s.getQuestions()) as Question[];
+  // expect(_title).eq(title);
+  // expect(_desc).eq(description);
+  // expect(_question[0].options).deep.eq(questions[0].options)
+
+  // const signers = await ethers.getSigners();
+  // const respondent = signers[1];
+  // await s.connect(respondent);
+  // await s.submitAnswer({
+  //   respondent:respondent.address,
+  //   answers:[1],
+  // });
+  
+  // console.log(await s.getAnswers());
+  const factory = await ethers.deployContract("SurveyFactory",[]);
+  const tx = await factory.createSurvey({
     title,
     description,
     questions
-  ]);
-  const _title = await s.title();
-  const _desc = await s.description();
-  const _question = (await s.getQuestions()) as Question[];
-  expect(_title).eq(title);
-  expect(_desc).eq(description);
-  expect(_question[0].options).deep.eq(questions[0].options)
-
-  const signers = await ethers.getSigners();
-  const respondent = signers[1];
-  await s.connect(respondent);
-  await s.submitAnswer({
-    respondent:respondent.address,
-    answers:[1],
   });
+  const receipt = await tx.wait();
+
+  let surveyAddress;
+  receipt?.logs.forEach(log=>{
+    const event = factory.interface.parseLog(log);
+    if(event?.name == "SurveyCreated"){
+      surveyAddress = event.args[0];
+    }
+  })
   
-  console.log(await s.getAnswers());
+  // const surveys = await factory.getSurveys();
+  const surveyC = await ethers.getContractFactory("Survey");
+  const survey = surveyC.attach(surveyAddress!);
+
+  console.log(await survey.getQuestions());
 }); 
 
