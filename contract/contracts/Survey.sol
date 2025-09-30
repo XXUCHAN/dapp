@@ -10,6 +10,7 @@ struct Answer{
   uint8[] answers;
 }
 contract Survey{
+  //Key-Value Storage 저장
   string public title;
   string public description;
   uint256 public targetNumber;
