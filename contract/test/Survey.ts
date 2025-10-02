@@ -226,7 +226,8 @@ interface Question{
 it("Survey init", async()=>{
   const {ethers} = await network.connect();
   const title ="설문조사";
-  const description = "@@조사@@";
+  //32바이트 이하 - Slot, 초과 - pointer ref
+  const description = "abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#";
   const questions : Question[]= [
     {
       question:"questions",
@@ -249,10 +250,15 @@ it("Survey init", async()=>{
   const slot3Data = await ethers.provider.getStorage(survey.getAddress(),ethers.toBeHex(3,32));
   const slot4Data = await ethers.provider.getStorage(survey.getAddress(),ethers.toBeHex(4,32));
   const slot5Data = await ethers.provider.getStorage(survey.getAddress(),ethers.toBeHex(5,32));
-  console.log(slot0Data);
-  console.log(slot1Data);
+  const decode = (hex:string)=>Buffer.from(hex.slice(2),"hex").toString("utf-8");
+
   console.log(slot2Data);
   console.log(slot3Data);
-  console.log(slot4Data);
-  console.log(slot5Data);  
+
+  console.log(slot1Data);
+  
+  const pDesc = ethers.keccak256(ethers.toBeHex(1,32));
+  const desc = await ethers.provider.getStorage(await survey.getAddress(),pDesc);
+  console.log(decode(desc));
+  console.log(desc);
 }); 
