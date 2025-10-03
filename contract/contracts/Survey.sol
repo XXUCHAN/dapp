@@ -17,6 +17,7 @@ contract Survey{
   uint256 public rewardAmount;
   Question[] questions;
   Answer[] answers;
+
   constructor(
   string memory _title,
   string memory _description, 

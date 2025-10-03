@@ -230,8 +230,12 @@ it("Survey init", async()=>{
   const description = "abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#";
   const questions : Question[]= [
     {
-      question:"questions",
+      question:"questionsabcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ",
       options:["옵션","11"],
+    },
+    {
+      question:"short string",
+      options:["옵션","11","22"],
     }
   ]
  
@@ -251,6 +255,8 @@ it("Survey init", async()=>{
   const slot4Data = await ethers.provider.getStorage(survey.getAddress(),ethers.toBeHex(4,32));
   const slot5Data = await ethers.provider.getStorage(survey.getAddress(),ethers.toBeHex(5,32));
   const decode = (hex:string)=>Buffer.from(hex.slice(2),"hex").toString("utf-8");
+  const nextHash = (hex:string,i:number)=>
+    "0x"+(BigInt(hex) + BigInt(i)).toString(16);
 
   console.log(slot2Data);
   console.log(slot3Data);
@@ -261,4 +267,23 @@ it("Survey init", async()=>{
   const desc = await ethers.provider.getStorage(await survey.getAddress(),pDesc);
   console.log(decode(desc));
   console.log(desc);
+
+
+  // Array type
+  // pQuestions = 0x8a35acfbc15ff81a39ae7d344fd709f28e8600b4aa8c65c6b64bfe7fe36bd19b
+  // question1 <- pQuestions 0x8a35acfbc15ff81a39ae7d344fd709f28e8600b4aa8c65c6b64bfe7fe36bd19c
+  // question1.option[] <- pQuestions + 1 0x8a35acfbc15ff81a39ae7d344fd709f28e8600b4aa8c65c6b64bfe7fe36bd19d
+  // question2 <- pQuestions +2 0x8a35acfbc15ff81a39ae7d344fd709f28e8600b4aa8c65c6b64bfe7fe36bd19e
+  // question2.option[] <- pQuestions +3. 0x8a35acfbc15ff81a39ae7d344fd709f28e8600b4aa8c65c6b64bfe7fe36bd19f
+  console.log("\n-----array type");
+  const pQuestions = ethers.keccak256(ethers.toBeHex(4,32));
+  const question1 = await ethers.provider.getStorage(survey.getAddress(),nextHash(pQuestions,0));
+  const question1_option = await ethers.provider.getStorage(survey.getAddress(),nextHash(pQuestions,1));
+  const question2 = await ethers.provider.getStorage(survey.getAddress(),nextHash(pQuestions,2));
+  const question2_option = await ethers.provider.getStorage(survey.getAddress(),nextHash(pQuestions,3));
+  console.log(slot4Data);
+  console.log("question1",question1);
+  console.log("question1_optioin",question1_option);
+  console.log("question2",question2, decode(question2));
+  console.log("question2_option",question2_option);
 }); 
