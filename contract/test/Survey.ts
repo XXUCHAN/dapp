@@ -254,21 +254,23 @@ it("Survey init", async()=>{
   const slot3Data = await ethers.provider.getStorage(survey.getAddress(),ethers.toBeHex(3,32));
   const slot4Data = await ethers.provider.getStorage(survey.getAddress(),ethers.toBeHex(4,32));
   const slot5Data = await ethers.provider.getStorage(survey.getAddress(),ethers.toBeHex(5,32));
+  const slot6Data = await ethers.provider.getStorage(survey.getAddress(),ethers.toBeHex(6,32));
   const decode = (hex:string)=>Buffer.from(hex.slice(2),"hex").toString("utf-8");
   const nextHash = (hex:string,i:number)=>
     "0x"+(BigInt(hex) + BigInt(i)).toString(16);
 
-  console.log(slot2Data);
-  console.log(slot3Data);
 
-  console.log(slot1Data);
-  
+  //long string type
+  console.log("\n long string type ");
+  console.log(slot1Data); // 83 
   const pDesc = ethers.keccak256(ethers.toBeHex(1,32));
-  const desc = await ethers.provider.getStorage(await survey.getAddress(),pDesc);
-  console.log(decode(desc));
-  console.log(desc);
+  const desc0 = await ethers.provider.getStorage(await survey.getAddress(),pDesc);
+  const desc1 = await ethers.provider.getStorage(await survey.getAddress(),nextHash(pDesc,1));
+  const desc2 = await ethers.provider.getStorage(await survey.getAddress(),nextHash(pDesc,2));
 
-
+  console.log(desc0);
+  console.log(desc1);
+  console.log(desc2);
   // Array type
   // pQuestions = 0x8a35acfbc15ff81a39ae7d344fd709f28e8600b4aa8c65c6b64bfe7fe36bd19b
   // question1 <- pQuestions 0x8a35acfbc15ff81a39ae7d344fd709f28e8600b4aa8c65c6b64bfe7fe36bd19c
@@ -286,4 +288,12 @@ it("Survey init", async()=>{
   console.log("question1_optioin",question1_option);
   console.log("question2",question2, decode(question2));
   console.log("question2_option",question2_option);
+  
+  //map
+  //map[k,slot address]
+  console.log(slot6Data);
+  const address = "0x8626f6940e2eb28930efb4cef49b2d1f2c9c1199";
+  const mapKeyAddress = ethers.keccak256(ethers.toBeHex(address,32) + ethers.toBeHex(6,32).slice(2));
+  const map1Value = await ethers.provider.getStorage(survey.getAddress(),mapKeyAddress );
+  console.log(map1Value);
 }); 
