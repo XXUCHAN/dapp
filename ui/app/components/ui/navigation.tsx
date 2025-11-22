@@ -10,7 +10,8 @@ import {
   NavigationMenuViewport,
   navigationMenuTriggerStyle,
 } from '~/components/ui/navigation-menu';
-import { Button } from './button';
+import WalletButton from '../wallet-button';
+
 export default function Navigation() {
   return (
     <nav className="fixed top-0 right-0 left-0">
@@ -21,13 +22,15 @@ export default function Navigation() {
         <NavigationMenu>
           <NavigationMenuList>
             <NavigationMenuItem>
-              <NavigationMenuLink>Dashboard</NavigationMenuLink>
+              <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                <Link to="/">Dashboard</Link>
+              </NavigationMenuLink>
             </NavigationMenuItem>
             <NavigationMenuItem>
               <NavigationMenuTrigger>Survey</NavigationMenuTrigger>
               <NavigationMenuContent>
                 <ul className="grid gap-2 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-                  <li className="row-span-2">
+                  <li className="row-span-2 h-[150px]">
                     <NavigationMenuLink asChild>
                       <a
                         className="from-muted/50 to-muted flex h-full w-full flex-col justify-center rounded-md bg-linear-to-b no-underline outline-hidden select-none focus:shadow-md"
@@ -51,7 +54,7 @@ export default function Navigation() {
                   </li>
                   <li>
                     <NavigationMenuLink asChild>
-                      <Link to="/">
+                      <Link to="/survey/create">
                         <div className="text-sm leading-none font-medium">Create Survey</div>
                         <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
                           Create Survey
@@ -80,7 +83,7 @@ export default function Navigation() {
                   </li>
                   <li>
                     <NavigationMenuLink asChild>
-                      <Link to="/">
+                      <Link to="/archive/finish">
                         <div className="text-sm leading-none font-medium">Finished Survey</div>
                         <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
                           Finished Survey
@@ -109,7 +112,7 @@ export default function Navigation() {
                   </li>
                   <li>
                     <NavigationMenuLink asChild>
-                      <Link to="/">
+                      <Link to="/profile/survey">
                         <div className="text-sm leading-none font-medium">My Surveys</div>
                         <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
                           My Surveys
@@ -119,7 +122,7 @@ export default function Navigation() {
                   </li>
                   <li>
                     <NavigationMenuLink asChild>
-                      <Link to="/">
+                      <Link to="/profile/response">
                         <div className="text-sm leading-none font-medium">My Responses</div>
                         <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
                           My Responses
@@ -132,7 +135,7 @@ export default function Navigation() {
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
-        <Button>Connect</Button>
+        <WalletButton />
       </div>
     </nav>
   );
