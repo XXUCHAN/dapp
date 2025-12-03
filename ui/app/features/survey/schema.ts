@@ -8,6 +8,7 @@ import {
   serial,
   doublePrecision,
   bigint,
+  timestamp,
 } from 'drizzle-orm/pg-core';
 export const survey = pgTable('survey', {
   id: varchar().notNull().primaryKey(),
@@ -20,9 +21,11 @@ export const survey = pgTable('survey', {
   image: text().notNull(),
   finish: boolean().default(false),
   view: bigint({ mode: 'number' }).default(0),
+  created_at: timestamp().defaultNow(),
 });
 export const answers = pgTable('answer', {
   id: serial().primaryKey(),
   answers: jsonb().default({}),
   survey_id: varchar().references(() => survey.id),
+  created_at: timestamp().defaultNow(),
 });

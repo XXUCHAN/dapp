@@ -3,6 +3,8 @@ import { createPublicClient, http, getContract } from 'viem';
 import { hardhat } from 'viem/chains';
 import { SURVEY_FACTORY, SURVEY_FACTORY_ABI, SURVEY_ABI } from '../constant';
 import { useEffect, useState } from 'react';
+import type { Route } from './+types/all-surveys';
+import { supabase } from '~/postgres/supaclient';
 interface SurveyMeta {
   title: string;
   description: string;
@@ -11,14 +13,32 @@ interface SurveyMeta {
   image: string | null;
   address: string;
 }
-export default function Allsurvey() {
+
+export const loader = async ({ request }: Route.LoaderArgs) => {
+  const { data, error } = await supabase.from('all_survey_overview').select('*');
+  if (!error) {
+    return data.map((s) => {
+      return {
+        title: s.title!,
+        description: s.description!,
+        view: s.view,
+        count: s.count!,
+        image: s.image,
+        address: s.id!,
+      };
+    });
+  } else {
+    return [];
+  }
+};
+export default function Allsurvey({ loaderData }: Route.ComponentProps) {
   // const { data } = useReadContract({
   //   address: SURVEY_FACTORY,
   //   abi: SURVEY_FACTORY_ABI,
   //   functionName: 'getSurveys',
   //   args: [],
   // });
-  const [surveys, setSurveys] = useState<SurveyMeta[]>([]);
+  const [surveys, setSurveys] = useState<SurveyMeta[]>(loaderData);
   const onChainLoader = async () => {
     const client = createPublicClient({
       chain: hardhat,
@@ -53,32 +73,14 @@ export default function Allsurvey() {
     return surveyMetaData;
   };
 
-  const offChainLoader = async (): Promise<SurveyMeta[]> => {
-    return [
-      {
-        title: 'New Survey',
-        description: 'override test',
-        count: 10,
-        view: 1500,
-        image:
-          'https://avatars.githubusercontent.com/u/141641630?s=400&u=b94b2dd8aa16729e8fd0ccce1567e2588cb9eb0d&v=4',
-        address: '',
-      },
-    ];
-  };
-
-  useEffect(() => {
-    const onChainData = async () => {
-      const onchainSurveys = await onChainLoader();
-      setSurveys(onchainSurveys);
-    };
-    onChainData();
-    // const offChainData = async () => {
-    //   const onchainSurveys = await offChainLoader();
-    //   setSurveys(onchainSurveys);
-    // };
-    // offChainData();
-  }, []);
+  // useEffect(() => {
+  //   const onChainData = async () => {
+  //     const onchainSurveys = await onChainLoader();
+  //     await new Promise((resolve) => setTimeout(resolve, 3000));
+  //     setSurveys(onchainSurveys);
+  //   };
+  //   onChainData();
+  // }, []);
   return (
     <div className="grid grid-cols-4 gap-4">
       <div className="flex flex-col justify-center items-center">
@@ -91,9 +93,7 @@ export default function Allsurvey() {
           description={s.description}
           view={150}
           count={s.count}
-          image={
-            'https://avatars.githubusercontent.com/u/141641630?s=400&u=b94b2dd8aa16729e8fd0ccce1567e2588cb9eb0d&v=4'
-          }
+          image={s.image!}
           address={s.address}
         />
       ))}

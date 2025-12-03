@@ -15,6 +15,34 @@
       "when": 1764782972487,
       "tag": "0001_loud_quicksilver",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1764785174548,
+      "tag": "0002_misty_calypso",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1764786079238,
+      "tag": "0003_graceful_lady_mastermind",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1764787242873,
+      "tag": "0004_clumsy_adam_warlock",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1764787465524,
+      "tag": "0005_silent_elektra",
+      "breakpoints": true
     }
   ]
 }
