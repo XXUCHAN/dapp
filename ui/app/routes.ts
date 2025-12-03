@@ -8,4 +8,6 @@ export default [
   route('/archive/finish', 'features/archive/pages/finish-surveys.tsx'),
   route('/profile/survey', 'features/profile/pages/my-survey.tsx'),
   route('/profile/response', 'features/profile/pages/my-response.tsx'),
+  route('/env-check', 'routes/env-check.tsx'),
+  route('/supabase-check', 'routes/supabase-check.tsx'),
 ] satisfies RouteConfig;
